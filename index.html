@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F6F0E6">
+<title>奶油麻將｜LINE 共用記分板</title>
+<style>
+:root{--bg:#f6f0e6;--card:#fffdf9;--ink:#51463d;--muted:#9c8f82;--line:#e8ddd0;--accent:#756558;--sage:#aab39d;--red:#b8756b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",sans-serif}
+.app{max-width:720px;margin:auto;padding:16px 14px 44px}.top{text-align:center;padding:10px 0 14px}.logo{font-size:27px;font-weight:900;letter-spacing:1px}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin:11px 0;box-shadow:0 5px 18px #5d4a3510}.title{font-weight:850;font-size:16px;margin-bottom:11px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+button,input,select{font:inherit;box-sizing:border-box}
+button{min-width:0;max-width:100%;border:1px solid var(--line);background:#faf5ee;color:var(--ink);border-radius:13px;padding:11px 8px;font-weight:750}
+button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.sage.on{background:var(--sage);border-color:var(--sage);color:#fff}
+.grid4 button{width:100%;min-width:0}
+input,select{width:100%;border:1px solid var(--line);background:#fcf8f2;border-radius:13px;padding:11px;color:var(--ink);outline:none}.grid2>div{min-width:0}.names{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.names label{font-size:12px;color:var(--muted)}.names input{margin-top:4px}
+.scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.seat{text-align:center;background:#fbf7f0;border:1px solid var(--line);border-radius:17px;padding:10px 4px}.seat small{color:var(--muted)}.score{font-size:20px;font-weight:900;margin-top:2px}.plus{color:#6e8969}.minus{color:#b66e64}.zero{color:var(--muted)}
+.handgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.hand{display:flex;align-items:center;justify-content:space-between;text-align:left;min-width:0;width:100%;white-space:normal;overflow:hidden;line-height:1.2}.hand span{min-width:0;overflow:hidden;text-overflow:ellipsis}.hand small{color:var(--muted);flex:0 0 auto;margin-left:4px;white-space:nowrap}.hand.on{background:#eee6da;border-color:#cdbca9}
+.special{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.result{margin:11px 0;background:#584b41;color:white;border-radius:22px;padding:18px;text-align:center}.result .muted{color:#dfd5cb}.tai{font-size:31px;font-weight:900}.money{font-size:31px;font-weight:900;margin-top:2px}.formula{font-size:12px;opacity:.75;margin:4px 0 11px}.payments{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.pay{background:#ffffff12;border-radius:13px;padding:8px 2px}.primary{width:100%;background:var(--accent);color:#fff;border:0;border-radius:0;font-size:16px;padding:14px;margin-top:8px}.secondary{width:100%;margin-top:8px}.danger{background:#f2dfdc;color:#9e574e;border-color:#ead0cb}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.note{font-size:11px;color:var(--muted);line-height:1.65;margin-top:9px}.history{font-size:13px}.hrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.status{font-size:12px;text-align:center;color:var(--muted);padding:5px}.hidden{display:none!important}
+@media(max-width:430px){
+  .grid4{gap:6px}
+  .grid4 button{font-size:14px;padding:10px 2px;width:100%}
+  .grid2{gap:7px}
+  .basic-settings .grid2{grid-template-columns:1fr}
+  .basic-settings .grid2>div{min-width:0}
+  .scoreboard{grid-template-columns:repeat(2,1fr)}
+  .handgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .hand{font-size:13px;padding:9px 7px}
+  .hand small{font-size:11px;margin-left:3px}
+  .special{gap:6px}
+  .special button{font-size:13px;padding:10px 5px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="logo">🀄 奶油麻將</div><div class="sub">16 張・LINE 共用記分板</div></header>
+
+<section class="card" id="setupCard">
+<div class="title">🤍 建立牌桌</div>
+<div class="names">
+<label>玩家 1<input id="n0" placeholder="例如：Seonghyoon"></label>
+<label>玩家 2<input id="n1" placeholder="例如：keoho"></label>
+<label>玩家 3<input id="n2" placeholder="例如：juhoon"></label>
+<label>玩家 4<input id="n3" placeholder="例如：martin"></label>
+</div>
+<button class="primary" id="create">建立／更新牌桌</button>
+<div class="note">建立後會產生一組牌桌代碼；把網址分享給 LINE 群組成員，大家就能看到同一桌。</div>
+</section>
+
+<section class="card">
+<div class="title">📊 目前戰況 <span id="tableCode" style="float:right;color:var(--muted);font-size:12px"></span></div>
+<div class="scoreboard" id="board"></div>
+<div class="status" id="status">尚未連線</div>
+</section>
+
+<section class="card basic-settings">
+<div class="title">① 基本設定</div>
+<div class="grid2"><div><div class="note">底</div><div class="grid4" id="base"></div></div><div><div class="note">一台</div><div class="grid4" id="unit"></div></div></div>
+</section>
+
+<section class="card">
+<div class="title">② 本局</div>
+<div class="grid2">
+<div><div class="note">胡牌方式</div><select id="mode"><option value="self">自摸</option><option value="discard">放槍</option></select></div>
+<div><div class="note">胡牌者</div><select id="winner"></select></div>
+<div id="loserWrap"><div class="note">放槍者</div><select id="loser"></select></div>
+<div><div class="note">豹子</div><div class="grid3" id="leo"></div></div>
+</div>
+</section>
+
+<section class="card">
+<div class="title">③ 台數</div>
+<div class="handgrid" id="hands"></div>
+<div class="special"><button id="dice">🎲 骰規　+2台</button><button id="red">🔴 全紅　+1台</button></div>
+</section>
+
+<section class="result">
+<div class="muted">本局總台數</div><div class="tai" id="tai">0 台</div>
+<div class="formula" id="formula"></div><div class="money" id="money">$30</div><div class="formula" id="detail"></div>
+<div class="payments" id="payments"></div>
+</section>
+
+<button class="primary" id="add">＋ 記入本局</button>
+
+<section class="card">
+<div class="title">📒 本桌紀錄</div><div class="history" id="history"></div>
+<button class="secondary" id="swap">🔄 第二將／換位置</button>
+<button class="secondary danger" id="clear">清除整桌</button>
+<div class="note">分數永遠跟著「玩家名字」走，不會因為第二將換位置而跑掉。</div>
+</section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+/*
+  這個版本已完成「前端＋計分邏輯＋多人同步資料格式」。
+  若要正式上線，請在 Supabase 建立資料表並填入 CONFIG。
+*/
+const CONFIG={SUPABASE_URL:"https://ppnkaerafpddwyyhbond.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_JLeCkPWS4TiHf87PFLoOnA_IVR2Kgt3"};
+let remote=null;
+try{
+  if(!CONFIG.SUPABASE_URL.startsWith("YOUR_") && window.supabase){
+    remote=window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+  } else {
+    console.warn("Supabase library not loaded");
+  }
+}catch(e){console.warn("Supabase init failed:",e)}
+
+const P=["Seonghyoon","keoho","juhoon","martin"];
+const defs=[["門清",1],["平胡",2],["自摸",1],["碰碰胡",4],["混一色",4],["清一色",8],["七對子",4],["混幺九",4],["清幺九",8],["小三元",4],["大三元",8],["小四喜",8],["大四喜",16],["字一色",8],["四槓子",8],["槓上開花",1],["海底撈月",1],["搶槓",1],["天胡",16],["地胡",16]];
+let names=[...P],base=30,unit=10,dice=false,red=false,leo=1,selected=new Set(),rounds=[],scores=[0,0,0,0],tableId=new URLSearchParams(location.search).get("table")||"";
+const $=id=>document.getElementById(id);
+function opts(){return names.map((n,i)=>`<option value="${i}">${n}</option>`).join("")}
+function refreshPlayers(){$("winner").innerHTML=opts();$("loser").innerHTML=opts();render()}
+function chips(id,vals,active){$(id).innerHTML=vals.map(v=>`<button class="${v===active?'on':''}" data-v="${v}">${v}</button>`).join("")}
+chips("base",[30,50,100,200],base);chips("unit",[10,20,50,100],unit);chips("leo",[1,2,3],1);
+$("base").onclick=e=>{let b=e.target.closest("button");if(b){base=+b.dataset.v;chips("base",[30,50,100,200],base);calc()}};
+$("unit").onclick=e=>{let b=e.target.closest("button");if(b){unit=+b.dataset.v;chips("unit",[10,20,50,100],unit);calc()}};
+$("leo").onclick=e=>{let b=e.target.closest("button");if(b){leo=+b.dataset.v;chips("leo",[1,2,3],leo);calc()}};
+$("hands").innerHTML=defs.map((d,i)=>`<button class="hand" data-i="${i}">${d[0]}<small>+${d[1]}</small></button>`).join("");
+$("hands").onclick=e=>{let b=e.target.closest("[data-i]");if(!b)return;let i=+b.dataset.i;selected.has(i)?selected.delete(i):selected.add(i);b.classList.toggle("on");calc()};
+$("dice").onclick=()=>{dice=!dice;$("dice").classList.toggle("on",dice);calc()};
+$("red").onclick=()=>{red=!red;$("red").classList.toggle("on",red);calc()};
+$("mode").onchange=()=>{$("loserWrap").classList.toggle("hidden",$("mode").value!=="discard");calc()};
+$("winner").onchange=calc;$("loser").onchange=calc;
+
+function getTai(){return [...selected].reduce((s,i)=>s+defs[i][1],0)+(dice?2:0)+(red?1:0)}
+function calc(){
+ const t=getTai(),raw=base+t*unit,amount=raw*leo,w=+$("winner").value,l=+$("loser").value,p=[0,0,0,0],mode=$("mode").value;
+ if(mode==="self"){for(let i=0;i<4;i++)if(i!==w)p[i]-=amount;p[w]+=amount*3}else{p[l]-=amount;p[w]+=amount}
+ $("tai").textContent=t+" 台";$("formula").textContent=`${base} 底＋${t} 台 × ${unit} 元 = ${raw} 元${leo>1?" × 豹子 "+leo:""}`;$("money").textContent="$"+amount;
+ $("detail").textContent=mode==="self"?`${names[w]} 自摸｜其他三家各付 $${amount}`:`${names[w]} 胡牌｜${names[l]} 放槍｜支付 $${amount}`;
+ $("payments").innerHTML=p.map((v,i)=>`<div class="pay"><div>${names[i]}</div><b class="${v>=0?'plus':'minus'}">${v>=0?"+":""}$${v}</b></div>`).join("");
+ return {t,amount,w,l,mode,p,leo,base,unit};
+}
+function render(){
+ $("board").innerHTML=names.map((n,i)=>`<div class="seat"><small>${n}</small><div class="score ${scores[i]>0?'plus':scores[i]<0?'minus':'zero'}">${scores[i]>0?"+":""}$${scores[i]}</div></div>`).join("");
+ $("history").innerHTML=rounds.length?rounds.map((r,i)=>`<div class="hrow"><span>第${i+1}局｜${names[r.w]} ${r.mode==="self"?"自摸":"胡牌"}｜${r.t}台${r.leo>1?"｜🐆×"+r.leo:""}</span><b>$${r.amount}</b></div>`).join(""):"<div class='note'>還沒有紀錄。</div>";
+ $("tableCode").textContent=tableId?`牌桌 ${tableId}`:"";
+}
+function saveLocal(){localStorage.setItem("butter-mahjong",JSON.stringify({names,scores,rounds,base,unit}));}
+function loadLocal(){try{let x=JSON.parse(localStorage.getItem("butter-mahjong"));if(x){names=x.names||names;scores=x.scores||scores;rounds=x.rounds||[];base=x.base||30;unit=x.unit||10;chips("base",[30,50,100,200],base);chips("unit",[10,20,50,100],unit)}}catch{}refreshPlayers()}
+$("create").onclick=async()=>{
+ names=[0,1,2,3].map(i=>$(["n0","n1","n2","n3"][i]).value.trim()||P[i]);
+ if(!tableId)tableId=Math.random().toString(36).slice(2,8).toUpperCase();
+ history.replaceState(null,"",`?table=${tableId}`);
+ $("setupCard").classList.add("hidden");refreshPlayers();saveLocal();
+ if(remote){await remote.from("mahjong_tables").upsert({id:tableId,names,scores,rounds,base,unit});subscribe()}
+ $("status").textContent=remote?"已連線同步":"目前為本機模式（部署後可同步）";
+};
+$("add").onclick=async()=>{
+ let r=calc();scores=scores.map((v,i)=>v+r.p[i]);rounds.push(r);saveLocal();render();
+ if(remote)await remote.from("mahjong_tables").upsert({id:tableId,names,scores,rounds,base,unit,updated_at:new Date().toISOString()});
+};
+$("swap").onclick=async()=>{
+ let a=prompt(`輸入新的4人順序，以逗號分隔：\n目前：${names.join("、")}`,names.join(","));
+ if(!a)return;let nn=a.split(",").map(x=>x.trim()).filter(Boolean);if(nn.length!==4)return alert("請輸入4個名字");
+ const map=nn.map(n=>names.indexOf(n));if(map.some(i=>i<0))return alert("請使用目前這桌已有的名字");
+ names=nn;scores=map.map(i=>scores[i]);refreshPlayers();saveLocal();
+ if(remote)await remote.from("mahjong_tables").upsert({id:tableId,names,scores,rounds,base,unit,updated_at:new Date().toISOString()});
+};
+$("clear").onclick=async()=>{if(!confirm("確定清除整桌？"))return;scores=[0,0,0,0];rounds=[];render();saveLocal();if(remote)await remote.from("mahjong_tables").upsert({id:tableId,names,scores,rounds,base,unit,updated_at:new Date().toISOString()})};
+
+async function subscribe(){
+ if(!remote||!tableId)return;
+ const {data}=await remote.from("mahjong_tables").select("*").eq("id",tableId).maybeSingle();
+ if(data){names=data.names;scores=data.scores;rounds=data.rounds;base=data.base;unit=data.unit;chips("base",[30,50,100,200],base);chips("unit",[10,20,50,100],unit);refreshPlayers()}
+ remote.channel("table-"+tableId).on("postgres_changes",{event:"UPDATE",schema:"public",table:"mahjong_tables",filter:`id=eq.${tableId}`},p=>{const d=p.new;names=d.names;scores=d.scores;rounds=d.rounds;base=d.base;unit=d.unit;refreshPlayers();saveLocal()}).subscribe();
+}
+loadLocal();
+if(tableId){$("setupCard").classList.add("hidden");refreshPlayers();$("status").textContent=remote?"正在連線…":"牌桌已開啟；完成部署後可多人同步";if(remote)subscribe()}
+else $("loserWrap").classList.add("hidden");
+calc();render();
+</script>
+</body>
+</html>
